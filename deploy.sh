@@ -13,7 +13,7 @@ php artisan view:cache
 
 # 2. Exécution des migrations sur ton cluster TiDB Cloud
 echo "🗄️ Running database migrations..."
-php artisan migrate:fresh --force
+php artisan migrate --force
 
 echo "✅ Optimization and migrations completed!"
 echo "🌐 Starting Laravel web server..."
