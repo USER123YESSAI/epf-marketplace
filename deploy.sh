@@ -15,8 +15,12 @@ php artisan view:cache
 echo "🗄️ Running database migrations..."
 php artisan migrate --force
 
+# 3. Générer le compte admin AUTOMATIQUEMENT (Avant de lancer le serveur)
+echo "👤 Creating administrative account..."
+php artisan make:admin
+
 echo "✅ Optimization and migrations completed!"
 echo "🌐 Starting Laravel web server..."
 
-# 3. CRUCIAL : Lancer le serveur au premier plan pour maintenir le conteneur en vie
+# 4. CRUCIAL : Lancer le serveur au premier plan pour maintenir le conteneur en vie
 php artisan serve --host=0.0.0.0 --port=80
