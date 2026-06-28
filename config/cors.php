@@ -19,9 +19,8 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        env('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://localhost:3000'),
-    ],
+    // Explode permet de séparer proprement les domaines s'ils sont listés avec des virgules
+    'allowed_origins' => explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://localhost:3000,https://marketplace-epf.vercel.app')),
 
     'allowed_origins_patterns' => [],
 
