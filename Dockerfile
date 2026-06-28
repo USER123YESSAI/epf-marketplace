@@ -1,6 +1,6 @@
 FROM php:8.4-fpm
 
-# Install system dependencies
+# Installer les dépendances système nécessaires
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -12,29 +12,28 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
+# Installer les extensions PHP indispensables pour Laravel
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Install Composer
+# Récupérer Composer depuis l'image officielle
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
+# Définir le dossier de travail dans le conteneur
 WORKDIR /var/www/html
 
-# Copy application files
+# Copier l'intégralité des fichiers du projet
 COPY . .
 
-# Install dependencies
-# Tiens: sur Render, certains appels GitHub peuvent échouer (HTTP/2 400) lors du fallback vers des "legacy.zip".
-# On force un mode plus robuste: utiliser les dist autant que possible.
-RUN composer install --no-dev --no-interaction --optimize-autoloader --prefer-dist
+# Installer les dépendances PHP en forçant le clonage Git (--prefer-source)
+# Cela évite le téléchargement des archives zip corrompues (Erreurs HTTP/2 400 de GitHub)
+RUN composer install --no-dev --no-interaction --optimize-autoloader --prefer-source
 
-
-# Set permissions
+# Ajuster les permissions pour que Laravel puisse écrire dans ses répertoires de stockage
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
 
-# Expose port
-EXPOSE 9000
+# Exposer le port par défaut
+EXPOSE 80
 
+# Laisser s'exécuter l'image php-fpm par défaut
 CMD ["php-fpm"]
