@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
@@ -16,6 +17,9 @@ use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\SellerController;
 use App\Http\Controllers\Api\SellerDashboardController;
 use Illuminate\Support\Facades\Route;
+
+// Health check endpoint (no authentication required)
+Route::get('health', HealthController::class);
 
 Route::middleware('throttle:auth')->group(function (): void {
     Route::post('auth/register', [AuthController::class, 'register']);
@@ -27,6 +31,9 @@ Route::get('categories/{category}', [CategoryController::class, 'show']);
 
 Route::get('products', [ProductController::class, 'index']);
 Route::get('products/top-selling', [ProductController::class, 'topSelling']);
+Route::middleware(['auth:sanctum', 'not_suspended'])
+    ->get('products/my-products', [ProductController::class, 'myProducts']);
+
 Route::get('products/{product}/reviews', [ReviewController::class, 'index']);
 Route::get('products/{product}', [ProductController::class, 'show']);
 
@@ -44,7 +51,7 @@ Route::middleware(['auth:sanctum', 'not_suspended'])->group(function (): void {
     Route::get('auth/me', [AuthController::class, 'me']);
     Route::put('auth/profile', [AuthController::class, 'updateProfile']);
 
-    Route::get('products/my-products', [ProductController::class, 'myProducts']);
+   
     Route::get('products/{product}/is-favorite', [ProductController::class, 'isFavorite']);
     Route::post('products/{product}/reviews', [ReviewController::class, 'store']);
 

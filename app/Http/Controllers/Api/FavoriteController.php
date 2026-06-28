@@ -18,7 +18,7 @@ class FavoriteController extends Controller
         ]);
 
         $query = Favorite::query()
-            ->where('user_id', $request->user()->id)
+            ->where('favorites.user_id', $request->user()->id)
             ->with(['product' => fn ($q) => $q->with('seller:id,name')]);
 
         $sort = $request->string('sort', 'newest')->toString();

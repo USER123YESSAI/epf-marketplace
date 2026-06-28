@@ -129,7 +129,7 @@ class OrderController extends Controller
 
     public function myOrders(Request $request): JsonResponse
     {
-        $query = $request->user()->orders()->orderByDesc('id');
+        $query = $request->user()->orders()->with(['items.product', 'items.seller:id,name'])->orderByDesc('id');
 
         if ($request->filled('status')) {
             $request->validate([
@@ -139,14 +139,24 @@ class OrderController extends Controller
         }
 
         $perPage = min(max($request->integer('per_page', 12), 1), 100);
-        $paginator = $query->withCount('items')->paginate($perPage);
+        $paginator = $query->paginate($perPage);
 
         $paginator->through(fn (Order $o) => [
             'id' => $o->id,
             'order_number' => $o->order_number,
             'total_amount' => $o->total_amount,
+            'discount_amount' => $o->discount_amount,
             'status' => $o->status,
             'item_count' => $o->items_count,
+            'items' => $o->items->map(fn ($item) => [
+                'product' => $item->product ? [
+                    'id' => $item->product->id,
+                    'title' => $item->product->title,
+                    'price' => $item->product->price,
+                ] : null,
+                'quantity' => $item->quantity,
+                'subtotal' => $item->subtotal,
+            ])->values()->all(),
             'created_at' => $o->created_at?->toIso8601String(),
         ]);
 
