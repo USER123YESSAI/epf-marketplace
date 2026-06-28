@@ -25,7 +25,10 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Tiens: sur Render, certains appels GitHub peuvent échouer (HTTP/2 400) lors du fallback vers des "legacy.zip".
+# On force un mode plus robuste: utiliser les dist autant que possible.
+RUN composer install --no-dev --no-interaction --optimize-autoloader --prefer-dist
+
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
