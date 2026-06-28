@@ -35,8 +35,20 @@ return new class extends Migration
             });
         }
 
+        // TiDB/MySQL: on ne peut pas drop une colonne si un index dépend encore
         Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn(['stock', 'is_active']);
+            if (Schema::hasColumn('products', 'stock')) {
+                $table->dropColumn('stock');
+            }
+            if (Schema::hasColumn('products', 'is_active')) {
+                // Supprimer d’abord les indexes potentiellement dépendants
+                try {
+                    $table->dropIndex('products_category_id_is_active_index');
+                } catch (Throwable $e) {
+                    // ignore: index absent (ou non couvert sur certains schémas)
+                }
+                $table->dropColumn('is_active');
+            }
         });
 
         Schema::table('products', function (Blueprint $table) {
